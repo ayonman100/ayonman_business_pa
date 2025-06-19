@@ -1,7 +1,22 @@
+// Updated AuthContext.tsx with improvements
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { OAuthProvider, oauthProviders } from '../lib/supabase';
+
+interface Metadata {
+  full_name?: string;
+  name?: string;
+  avatar_url?: string;
+  picture?: string;
+  company_name?: string;
+  job_title?: string;
+  phone_number?: string;
+  timezone?: string;
+  language?: string;
+  last_login_at?: string;
+  [key: string]: unknown;
+}
 
 interface User {
   id: string;
@@ -29,7 +44,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithOAuth: (provider: OAuthProvider) => Promise<void>;
   signInWithEmail: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, fullName: string, metadata?: any) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, fullName: string, metadata?: Record<string, unknown>) => Promise<void>;
   resendVerificationEmail: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -54,8 +69,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [error, setError] = useState<string | null>(null);
 
   const transformUser = (supabaseUser: SupabaseUser, session: Session): User => {
-    const metadata = supabaseUser.user_metadata || {};
+    const metadata = supabaseUser.user_metadata as Metadata;
     const appMetadata = supabaseUser.app_metadata || {};
+
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
@@ -72,7 +88,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       plan: appMetadata.plan || 'free',
       isFirstLogin: !metadata.last_login_at,
       lastLoginAt: metadata.last_login_at ? new Date(metadata.last_login_at) : undefined,
-      emailVerified: supabaseUser.email_confirmed_at !== null,
+      emailVerified: !!supabaseUser.email_confirmed_at,
       provider: appMetadata.provider,
     };
   };
@@ -82,11 +98,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const getInitialSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.getSession();
         if (error) setError(error.message);
-        else if (session && mounted) {
-          setSession(session);
-          setUser(transformUser(session.user, session));
+        else if (data.session && mounted) {
+          setSession(data.session);
+          setUser(transformUser(data.session.user, data.session));
         }
       } catch {
         setError('Failed to initialize authentication');
@@ -170,7 +186,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string, fullName: string, metadata: any = {}) => {
+  const signUpWithEmail = async (email: string, password: string, fullName: string, metadata: Record<string, unknown> = {}) => {
     try {
       setLoading(true);
       setError(null);
@@ -203,9 +219,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) throw error;
     } catch (err) {
