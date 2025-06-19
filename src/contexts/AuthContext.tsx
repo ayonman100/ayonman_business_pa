@@ -1,4 +1,3 @@
-// AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
@@ -31,6 +30,7 @@ interface AuthContextType {
   signInWithOAuth: (provider: OAuthProvider) => Promise<void>;
   signInWithEmail: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   signUpWithEmail: (email: string, password: string, fullName: string, metadata?: any) => Promise<void>;
+  resendVerificationEmail: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
@@ -40,6 +40,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within an AuthProvider');
@@ -78,6 +79,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     let mounted = true;
+
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -86,12 +88,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setSession(session);
           setUser(transformUser(session.user, session));
         }
-      } catch (err) {
+      } catch {
         setError('Failed to initialize authentication');
       } finally {
         if (mounted) setLoading(false);
       }
     };
+
     getInitialSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -150,7 +153,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      if (!data.user?.email_confirmed_at) throw new Error('Please verify your email address before signing in');
+      if (!data.user?.email_confirmed_at) throw new Error('Please verify your email before signing in');
       if (rememberMe) {
         localStorage.setItem('ayonman_remember_me', 'true');
         localStorage.setItem('ayonman_user_email', email);
@@ -186,6 +189,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Sign up failed';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendVerificationEmail = async (email: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to resend verification email';
       setError(message);
       throw new Error(message);
     } finally {
@@ -253,6 +277,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         signInWithOAuth,
         signInWithEmail,
         signUpWithEmail,
+        resendVerificationEmail,
         signOut,
         resetPassword,
         updateProfile,
