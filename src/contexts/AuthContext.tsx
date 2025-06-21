@@ -1,4 +1,3 @@
-// Updated AuthContext.tsx with improvements
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
@@ -51,7 +50,9 @@ interface AuthContextType {
   updateProfile: (updates: Partial<User>) => Promise<void>;
   isAuthenticated: boolean;
   error: string | null;
+  success: string | null;
   clearError: () => void;
+  clearSuccess: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,6 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const transformUser = (supabaseUser: SupabaseUser, session: Session): User => {
     const metadata = supabaseUser.user_metadata as Metadata;
@@ -138,6 +140,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const clearError = () => setError(null);
+  const clearSuccess = () => setSuccess(null);
 
   const signInWithOAuth = async (provider: OAuthProvider) => {
     try {
@@ -190,6 +193,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setLoading(true);
       setError(null);
+      setSuccess(null);
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -198,10 +203,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
+
       if (error) throw error;
       if (!data.user) throw new Error('Failed to create user account');
+
+      // ✅ Insert user into your custom `users` table
+      const { error: insertError } = await supabase.from('users').upsert({
+        id: data.user.id,
+        email: data.user.email,
+        full_name: fullName,
+        created_at: new Date().toISOString(),
+        ...metadata,
+      });
+
+      if (insertError) throw insertError;
+
       if (!data.session) {
-        setError('Please check your email and click the confirmation link to complete registration');
+        setSuccess('Account created! Please check your email and confirm it to complete your registration.');
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Sign up failed';
@@ -297,7 +315,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateProfile,
         isAuthenticated: !!session,
         error,
+        success,
         clearError,
+        clearSuccess,
       }}
     >
       {children}
