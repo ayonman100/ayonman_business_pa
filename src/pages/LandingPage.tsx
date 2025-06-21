@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Globe, Zap, BarChart3, Calendar, Mic, Moon, Sun, MessageSquare, LifeBuoy, User, ChevronDown, LogIn, UserPlus } from 'lucide-react';
+import { ArrowRight, Globe, Zap, BarChart3, Calendar, Mic, Moon, Sun, MessageSquare, LifeBuoy, User, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import Logo from '../components/Logo';
 
 const LandingPage: React.FC = () => {
-  const { isAuthenticated, user, signOut } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const { currentLanguage, changeLanguage, t } = useLanguage();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -88,8 +88,12 @@ const LandingPage: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      // Since signOut was removed, we'll redirect to a logout endpoint or clear session manually
+      // You might want to implement a custom logout logic here
+      console.log('Sign out clicked - implement custom logout logic');
       setShowProfileDropdown(false);
+      // For now, just redirect to home
+      window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
     }
@@ -135,29 +139,8 @@ const LandingPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Authentication Buttons */}
-              {!isAuthenticated ? (
-                <div className="flex items-center space-x-4">
-                  {/* Sign In Button */}
-                  <Link
-                    to="/signin"
-                    className="inline-flex items-center space-x-2 px-4 py-2 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-300 transform hover:scale-102 font-medium"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    <span>{t('auth.signin')}</span>
-                  </Link>
-
-                  {/* Sign Up Button */}
-                  <Link
-                    to="/onboarding"
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all duration-300 transform hover:scale-102 font-medium shadow-lg hover:shadow-xl"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    <span>{t('auth.signup').split(' - ')[0]}</span>
-                  </Link>
-                </div>
-              ) : (
-                /* User Profile Dropdown for Authenticated Users */
+              {/* User Profile for Authenticated Users Only */}
+              {isAuthenticated && (
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setShowProfileDropdown(!showProfileDropdown)}
@@ -237,24 +220,16 @@ const LandingPage: React.FC = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               {!isAuthenticated ? (
-                <>
-                  <Link
-                    to="/onboarding"
+                <div className="text-gray-600 dark:text-gray-400 py-4">
+                  <p className="mb-4">Welcome! Please contact support to get started.</p>
+                  <button
+                    onClick={() => window.location.href = 'mailto:support@friday.ai'}
                     className="inline-flex items-center space-x-3 px-8 py-4 bg-primary-500 text-white text-lg font-semibold rounded-xl hover:bg-primary-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group"
                   >
-                    <UserPlus className="h-5 w-5" />
-                    <span>{t('hero.getStarted')}</span>
+                    <span>Contact Support</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                  <Link
-                    to="/signin"
-                    className="inline-flex items-center space-x-3 px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-lg font-semibold rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group"
-                  >
-                    <LogIn className="h-5 w-5" />
-                    <span>{t('auth.signin')}</span>
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </>
+                  </button>
+                </div>
               ) : (
                 <Link
                   to="/dashboard"
@@ -290,7 +265,7 @@ const LandingPage: React.FC = () => {
                 className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group cursor-pointer"
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => {
-                  if (feature.link) {
+                  if (feature.link && isAuthenticated) {
                     window.location.href = feature.link;
                   }
                 }}
@@ -306,7 +281,7 @@ const LandingPage: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                   {feature.description}
                 </p>
-                {feature.link && (
+                {feature.link && isAuthenticated && (
                   <div className="mt-4 flex items-center text-primary-600 dark:text-primary-400 text-sm font-medium group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">
                     <span>Learn more</span>
                     <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -327,22 +302,13 @@ const LandingPage: React.FC = () => {
               {t('common.joinThousands')}
             </p>
             {!isAuthenticated ? (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  to="/onboarding"
-                  className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors transform hover:scale-105 duration-300"
-                >
-                  <UserPlus className="h-5 w-5" />
-                  <span>{t('hero.getStarted')}</span>
-                </Link>
-                <Link
-                  to="/signin"
-                  className="inline-flex items-center space-x-2 px-8 py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-800 transition-colors border-2 border-white/20 transform hover:scale-105 duration-300"
-                >
-                  <LogIn className="h-5 w-5" />
-                  <span>{t('auth.signin')}</span>
-                </Link>
-              </div>
+              <button
+                onClick={() => window.location.href = 'mailto:support@friday.ai'}
+                className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors transform hover:scale-105 duration-300"
+              >
+                <span>Contact Support</span>
+                <ArrowRight className="h-5 w-5" />
+              </button>
             ) : (
               <Link
                 to="/dashboard"
@@ -358,9 +324,5 @@ const LandingPage: React.FC = () => {
     </div>
   );
 };
-
-<div style={{ position: "relative", minHeight: "100vh" }}>
-
-</div>
 
 export default LandingPage;

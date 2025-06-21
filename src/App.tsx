@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -6,7 +5,6 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { StatsProvider } from './contexts/StatsContext';
 import LoadingScreen from './pages/LoadingScreen';
 import LandingPage from './pages/LandingPage';
-import SignInPage from './pages/SignInPage';
 import OnboardingPage from './pages/OnboardingPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AuthCallback from './pages/AuthCallback';
@@ -34,7 +32,6 @@ function App() {
                   <Routes>
                     <Route path="/" element={<LoadingScreen />} />
                     <Route path="/home" element={<LandingPage />} />
-                    <Route path="/signin" element={<SignInPage />} />
                     <Route path="/onboarding" element={<OnboardingPage />} />
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />

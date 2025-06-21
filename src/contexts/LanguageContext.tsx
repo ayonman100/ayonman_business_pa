@@ -44,14 +44,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         'welcome.subtitle': 'Your AI-Powered Business Assistant',
         'welcome.description': 'Meet Friday - Your intelligent business partner',
         
-        // Authentication
-        'auth.signin': 'Sign In',
-        'auth.signup': 'Sign Up - Start Free Trial',
-        'auth.signout': 'Logout',
-        'auth.needAccount': 'Need an account?',
-        'auth.haveAccount': 'Already have an account?',
-        'auth.signupFree': 'Sign up for free',
-        'auth.signinHere': 'Sign in here',
+      
         
         // Navigation
         'nav.home': 'Home',
@@ -150,14 +143,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         'welcome.subtitle': 'Oluranlowo Iṣowo Ẹrọ Ayọnu Rẹ',
         'welcome.description': 'Pade Friday - Alabaṣepọ ọgbọn rẹ',
         
-        // Authentication
-        'auth.signin': 'Wọle',
-        'auth.signup': 'Forukọsilẹ - Bẹrẹ Idanwo Ọfẹ',
-        'auth.signout': 'Jade',
-        'auth.needAccount': 'Nilo akọọlẹ?',
-        'auth.haveAccount': 'Ni akọọlẹ tẹlẹ?',
-        'auth.signupFree': 'Forukọsilẹ lọfẹ',
-        'auth.signinHere': 'Wọle nibi',
         
         // Navigation
         'nav.home': 'Ile',
@@ -256,14 +241,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         'welcome.subtitle': 'Your AI-Powered Business Assistant',
         'welcome.description': 'Meet Friday - Your intelligent business partner',
         
-        // Authentication
-        'auth.signin': 'Sign In',
-        'auth.signup': 'Sign Up - Start Free Trial',
-        'auth.signout': 'Logout',
-        'auth.needAccount': 'You need account?',
-        'auth.haveAccount': 'You get account already?',
-        'auth.signupFree': 'Sign up for free',
-        'auth.signinHere': 'Sign in for here',
         
         // Navigation
         'nav.home': 'Home',
