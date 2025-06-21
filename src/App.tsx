@@ -17,7 +17,7 @@ import Pricing from './pages/Pricing';
 import Roadmap from './pages/Roadmap';
 import FridayFeaturesPage from './pages/FridayFeaturesPage';
 import ProPage from './pages/ProPage';
-import ProtectedRoute from './components/ProtectedRoute';
+
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
@@ -39,46 +39,13 @@ function App() {
                     <Route path="/roadmap" element={<Roadmap />} />
                     <Route path="/pro" element={<ProPage />} />
                     <Route path="/friday-features" element={<FridayFeaturesPage />} />
-                    <Route 
-                      path="/dashboard" 
-                      element={
-                        <ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/console" 
-                      element={
-                        <ProtectedRoute>
-                          <AssistantConsolePage />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/scheduler" 
-                      element={
-                        <ProtectedRoute>
-                          <SchedulerDashboard />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/advice" 
-                      element={
-                        <ProtectedRoute>
-                          <BusinessAdvicePage />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/settings" 
-                      element={
-                        <ProtectedRoute>
-                          <SettingsPage />
-                        </ProtectedRoute>
-                      } 
-                    />
+
+                    {/* Previously protected routes — now publicly accessible */}
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/console" element={<AssistantConsolePage />} />
+                    <Route path="/scheduler" element={<SchedulerDashboard />} />
+                    <Route path="/advice" element={<BusinessAdvicePage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
                   </Routes>
                 </div>
               </Router>
