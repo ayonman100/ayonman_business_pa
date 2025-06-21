@@ -11,6 +11,8 @@ const LandingPage: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
   const { currentLanguage, changeLanguage, t } = useLanguage();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [userName, setUserName] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const features = [
@@ -99,6 +101,31 @@ const LandingPage: React.FC = () => {
     }
   };
 
+  const handleTryNow = () => {
+    if (isAuthenticated) {
+      // If user is authenticated, go directly to dashboard
+      window.location.href = '/dashboard';
+    } else {
+      // If not authenticated, show name modal
+      setShowNameModal(true);
+    }
+  };
+
+  const handleStartWithName = () => {
+    if (userName.trim()) {
+      // Save name to localStorage or session storage for dashboard use
+      localStorage.setItem('guestUserName', userName.trim());
+      // Redirect to dashboard
+      window.location.href = '/dashboard';
+    }
+  };
+
+  const handleSkipName = () => {
+    // Set a default name
+    localStorage.setItem('guestUserName', 'Guest');
+    window.location.href = '/dashboard';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 animate-fade-in">
       {/* Header */}
@@ -138,6 +165,15 @@ const LandingPage: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Try Now Button - Always visible */}
+              <button
+                onClick={handleTryNow}
+                className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors"
+              >
+                <span>Try Now</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
 
               {/* User Profile for Authenticated Users Only */}
               {isAuthenticated && (
@@ -217,32 +253,27 @@ const LandingPage: React.FC = () => {
               {t('hero.subtitle')}
             </p>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - Always show Try Now */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              {!isAuthenticated ? (
-                <div className="text-gray-600 dark:text-gray-400 py-4">
-                  <p className="mb-4">Welcome! Please contact support to get started.</p>
-                  <button
-                    onClick={() => window.location.href = 'mailto:support@friday.ai'}
-                    className="inline-flex items-center space-x-3 px-8 py-4 bg-primary-500 text-white text-lg font-semibold rounded-xl hover:bg-primary-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group"
-                  >
-                    <span>Contact Support</span>
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  to="/dashboard"
-                  className="inline-flex items-center space-x-3 px-8 py-4 bg-primary-500 text-white text-lg font-semibold rounded-xl hover:bg-primary-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group"
-                >
-                  <span>Go to Dashboard</span>
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
+              <button
+                onClick={handleTryNow}
+                className="inline-flex items-center space-x-3 px-8 py-4 bg-primary-500 text-white text-lg font-semibold rounded-xl hover:bg-primary-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group"
+              >
+                <span>Try Friday Now</span>
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+              
+              <Link
+                to="/features"
+                className="inline-flex items-center space-x-3 px-8 py-4 bg-white dark:bg-gray-800 text-primary-500 dark:text-primary-400 text-lg font-semibold rounded-xl border-2 border-primary-500 dark:border-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 transition-all duration-300 group"
+              >
+                <span>Learn More</span>
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
 
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {t('hero.trialInfo')}
+              No registration required • Start using Friday instantly
             </p>
           </div>
         </div>
@@ -265,8 +296,8 @@ const LandingPage: React.FC = () => {
                 className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group cursor-pointer"
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => {
-                  if (feature.link && isAuthenticated) {
-                    window.location.href = feature.link;
+                  if (feature.link) {
+                    handleTryNow();
                   }
                 }}
               >
@@ -281,9 +312,9 @@ const LandingPage: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                   {feature.description}
                 </p>
-                {feature.link && isAuthenticated && (
+                {feature.link && (
                   <div className="mt-4 flex items-center text-primary-600 dark:text-primary-400 text-sm font-medium group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">
-                    <span>Learn more</span>
+                    <span>Try this feature</span>
                     <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
                   </div>
                 )}
@@ -296,31 +327,79 @@ const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="bg-gradient-to-r from-primary-500 to-primary-700 rounded-2xl p-8 text-center text-white">
             <h2 className="text-3xl font-bold mb-4">
-              {t('hero.readyToMeet')}
+              Ready to boost your productivity?
             </h2>
             <p className="text-xl mb-8 opacity-90">
-              {t('common.joinThousands')}
+              Join thousands of professionals who trust Friday with their business needs
             </p>
-            {!isAuthenticated ? (
-              <button
-                onClick={() => window.location.href = 'mailto:support@friday.ai'}
-                className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors transform hover:scale-105 duration-300"
-              >
-                <span>Contact Support</span>
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            ) : (
-              <Link
-                to="/dashboard"
-                className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors transform hover:scale-105 duration-300"
-              >
-                <span>Go to Dashboard</span>
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            )}
+            <button
+              onClick={handleTryNow}
+              className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors transform hover:scale-105 duration-300"
+            >
+              <span>Start Using Friday</span>
+              <ArrowRight className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </main>
+
+      {/* Name Input Modal */}
+      {showNameModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Welcome to Friday!
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                What should Friday call you?
+              </p>
+            </div>
+            
+            <div className="mb-6">
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Enter your name"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-lg"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && userName.trim()) {
+                    handleStartWithName();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleStartWithName}
+                disabled={!userName.trim()}
+                className="w-full px-6 py-3 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Start with Friday
+              </button>
+              
+              <button
+                onClick={handleSkipName}
+                className="w-full px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                Skip for now
+              </button>
+            </div>
+            
+            <button
+              onClick={() => setShowNameModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
