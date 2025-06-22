@@ -246,23 +246,7 @@ const Navbar: React.FC = () => {
                   </div>
                 )}
               </div>
-            ) : (
-              /* Sign In Button */
-              <div className="flex items-center space-x-2">
-                <Link
-                  to="/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-4 py-2 text-sm font-medium bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
+            ) : null}
           </div>
 
           {/* Mobile menu button */}
@@ -299,65 +283,44 @@ const Navbar: React.FC = () => {
               ))}
 
               {/* Mobile Auth Section */}
-              {!loading && (
+              {!loading && isAuthenticated && user && (
                 <div className="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
-                  {isAuthenticated && user ? (
-                    <>
-                      {/* User Info */}
-                      <div className="flex items-center space-x-3 px-3 py-2 mb-2">
-                        {user.avatarUrl ? (
-                          <img
-                            src={user.avatarUrl}
-                            alt={user.name}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-primary-500 flex items-center justify-center text-white text-sm font-medium">
-                            {getUserInitials(user.name)}
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-base font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-                        </div>
+                  {/* User Info */}
+                  <div className="flex items-center space-x-3 px-3 py-2 mb-2">
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.name}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-primary-500 flex items-center justify-center text-white text-sm font-medium">
+                        {getUserInitials(user.name)}
                       </div>
+                    )}
+                    <div>
+                      <p className="text-base font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                    </div>
+                  </div>
 
-                      {/* User Menu Items */}
-                      <Link
-                        to="/profile"
-                        className="flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-                        onClick={closeAllMenus}
-                      >
-                        <User className="h-5 w-5" />
-                        <span>Profile</span>
-                      </Link>
+                  {/* User Menu Items */}
+                  <Link
+                    to="/profile"
+                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                    onClick={closeAllMenus}
+                  >
+                    <User className="h-5 w-5" />
+                    <span>Profile</span>
+                  </Link>
 
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
-                      >
-                        <LogOut className="h-5 w-5" />
-                        <span>Sign Out</span>
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <Link
-                        to="/login"
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-                        onClick={closeAllMenus}
-                      >
-                        Sign In
-                      </Link>
-                      <Link
-                        to="/register"
-                        className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors mt-2"
-                        onClick={closeAllMenus}
-                      >
-                        Sign Up
-                      </Link>
-                    </>
-                  )}
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    <span>Sign Out</span>
+                  </button>
                 </div>
               )}
 

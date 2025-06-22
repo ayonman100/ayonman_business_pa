@@ -166,12 +166,12 @@ const LandingPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Try Now Button - Always visible */}
+              {/* Get Started Button - Always visible */}
               <button
                 onClick={handleTryNow}
                 className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors"
               >
-                <span>Try Now</span>
+                <span>Get Started</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
 
@@ -253,27 +253,8 @@ const LandingPage: React.FC = () => {
               {t('hero.subtitle')}
             </p>
 
-            {/* CTA Buttons - Always show Try Now */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <button
-                onClick={handleTryNow}
-                className="inline-flex items-center space-x-3 px-8 py-4 bg-primary-500 text-white text-lg font-semibold rounded-xl hover:bg-primary-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group"
-              >
-                <span>Try Friday Now</span>
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              
-              <Link
-                to="/features"
-                className="inline-flex items-center space-x-3 px-8 py-4 bg-white dark:bg-gray-800 text-primary-500 dark:text-primary-400 text-lg font-semibold rounded-xl border-2 border-primary-500 dark:border-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 transition-all duration-300 group"
-              >
-                <span>Learn More</span>
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              No registration required • Start using Friday instantly
+              Streamline your business operations with intelligent automation
             </p>
           </div>
         </div>
@@ -293,13 +274,8 @@ const LandingPage: React.FC = () => {
             {features.map((feature, index) => (
               <div
                 key={feature.title}
-                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group cursor-pointer"
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group"
                 style={{ animationDelay: `${index * 100}ms` }}
-                onClick={() => {
-                  if (feature.link) {
-                    handleTryNow();
-                  }
-                }}
               >
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg group-hover:scale-110 transition-transform">
@@ -312,12 +288,6 @@ const LandingPage: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                   {feature.description}
                 </p>
-                {feature.link && (
-                  <div className="mt-4 flex items-center text-primary-600 dark:text-primary-400 text-sm font-medium group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">
-                    <span>Try this feature</span>
-                    <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -332,13 +302,6 @@ const LandingPage: React.FC = () => {
             <p className="text-xl mb-8 opacity-90">
               Join thousands of professionals who trust Friday with their business needs
             </p>
-            <button
-              onClick={handleTryNow}
-              className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors transform hover:scale-105 duration-300"
-            >
-              <span>Start Using Friday</span>
-              <ArrowRight className="h-5 w-5" />
-            </button>
           </div>
         </div>
       </main>
