@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle, TrendingUp, Trash2, Users, Twitter, Facebook, Linkedin, Mail, ExternalLink, DollarSign, Target, Zap, Globe, ArrowUpRight, ArrowDownRight, Award, Brain, Shield, Mic } from 'lucide-react';
+import { Clock, CheckCircle, TrendingUp, Trash2, Twitter, Facebook, Linkedin, Mail, ExternalLink, Zap, Globe, ArrowUpRight, Brain, Shield, Mic, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useStats } from '../contexts/StatsContext';
@@ -31,57 +31,6 @@ const Dashboard: React.FC = () => {
     clearRecentActivity();
     logActivity('Activity history cleared', 'Dashboard');
   };
-
-  // Mock investor-focused metrics (replace with real data)
-  const investorMetrics = {
-    mrr: 45600, // Monthly Recurring Revenue
-    growth: 32.5, // Month over month growth %
-    activeUsers: 1247,
-    userGrowth: 18.2,
-    retention: 94.3,
-    nps: 72,
-    efficiency: 89.4,
-    expansion: 156.7 // Revenue expansion %
-  };
-
-  const keyMetrics = [
-    {
-      title: 'Monthly Revenue',
-      value: `$${investorMetrics.mrr.toLocaleString()}`,
-      change: `+${investorMetrics.growth}%`,
-      trend: 'up',
-      icon: DollarSign,
-      color: 'text-green-600 dark:text-green-400',
-      bgColor: 'bg-green-100 dark:bg-green-900/30'
-    },
-    {
-      title: 'Active Users',
-      value: investorMetrics.activeUsers.toLocaleString(),
-      change: `+${investorMetrics.userGrowth}%`,
-      trend: 'up',
-      icon: Users,
-      color: 'text-blue-600 dark:text-blue-400',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/30'
-    },
-    {
-      title: 'User Retention',
-      value: `${investorMetrics.retention}%`,
-      change: '+2.1%',
-      trend: 'up',
-      icon: Target,
-      color: 'text-purple-600 dark:text-purple-400',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/30'
-    },
-    {
-      title: 'Net Promoter Score',
-      value: investorMetrics.nps,
-      change: '+8 pts',
-      trend: 'up',
-      icon: Award,
-      color: 'text-orange-600 dark:text-orange-400',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/30'
-    }
-  ];
 
   const features = [
     {
@@ -185,53 +134,33 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             
-            {/* Live Status Indicator */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">LIVE</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {investorMetrics.efficiency}%
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">System Efficiency</p>
+            {/* Updated Status Indicator with Analytics Button */}
+            <div className="flex items-center space-x-4">
+              <Link
+                to="components/analytics.tsx"
+                onClick={() => handleFeatureClick('Analytics')}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 flex items-center space-x-2"
+              >
+                <BarChart3 className="h-5 w-5" />
+                <span>View Analytics</span>
+              </Link>
+              
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">LIVE</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      89.4%
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">System Efficiency</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Key Investor Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {keyMetrics.map((metric) => (
-            <div key={metric.title} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl ${metric.bgColor}`}>
-                  <metric.icon className={`h-6 w-6 ${metric.color}`} />
-                </div>
-                <div className="flex items-center space-x-1">
-                  {metric.trend === 'up' ? (
-                    <ArrowUpRight className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <ArrowDownRight className="h-4 w-4 text-red-500" />
-                  )}
-                  <span className={`text-sm font-semibold ${metric.trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {metric.change}
-                  </span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                  {metric.value}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  {metric.title}
-                </p>
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* AI Voice Command Center */}
