@@ -244,12 +244,12 @@ const Dashboard: React.FC = () => {
                 <Zap className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold">AI Command Center</h2>
-                <p className="text-primary-100">Voice-activated business intelligence</p>
+                <h2 className="text-2xl font-bold">Meet FRIDAY</h2>
+                <p className="text-primary-100">Click the mic to start conversation</p>
               </div>
               <div className="ml-auto">
                 <div className="px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
-                  <span className="text-sm font-semibold">Next-Gen Interface</span>
+                  <span className="text-sm font-semibold">Say hello friday.</span>
                 </div>
               </div>
             </div>
@@ -257,15 +257,11 @@ const Dashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
               <div className="text-center">
                 <p className="text-3xl font-bold">{todayStats.voiceCommands}</p>
-                <p className="text-primary-100">Commands Today</p>
+                <p className="text-primary-100">Conversation Today</p>
               </div>
               <div className="text-center">
                 <p className="text-3xl font-bold">99.2%</p>
                 <p className="text-primary-100">Accuracy Rate</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold">67%</p>
-                <p className="text-primary-100">Time Saved</p>
               </div>
             </div>
           </div>
@@ -424,22 +420,12 @@ const Dashboard: React.FC = () => {
                   <span className="text-gray-300">Global Presence</span>
                   <span className="text-2xl font-bold">31 Countries</span>
                 </div>
-                <div className="mt-8 p-6 bg-white/10 rounded-2xl backdrop-blur-sm">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <Award className="h-5 w-5 text-yellow-400" />
-                    <span className="font-semibold">Industry Recognition</span>
-                  </div>
-                  <p className="text-gray-300 text-sm">
-                    "Best AI Innovation 2024" - TechCrunch Disrupt<br />
-                    "Enterprise AI Solution of the Year" - Forbes
-                  </p>
-                </div>
               </div>
             </div>
 
             {/* Contact & Social */}
             <div>
-              <h3 className="text-2xl font-bold mb-6">Investor Relations</h3>
+              <h3 className="text-2xl font-bold mb-6">Contact & Social</h3>
               <div className="space-y-4 mb-8">
                 <a
                   href="mailto:investors@ayonman.com"
@@ -448,8 +434,8 @@ const Dashboard: React.FC = () => {
                 >
                   <Mail className="h-5 w-5 text-blue-400" />
                   <div>
-                    <span className="font-medium">investors@ayonman.com</span>
-                    <p className="text-xs text-gray-400">For investor inquiries</p>
+                    <span className="font-medium">Contact@ayonman.com</span>
+                    <p className="text-xs text-gray-400">For more inquiries</p>
                   </div>
                   <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-white ml-auto" />
                 </a>
@@ -464,25 +450,6 @@ const Dashboard: React.FC = () => {
                   <a href="#" className="flex items-center justify-center p-3 bg-blue-800 rounded-xl hover:bg-blue-900 transition-colors" title="Like us on Facebook">
                     <Facebook className="h-5 w-5" />
                   </a>
-                </div>
-              </div>
-              
-              <div className="p-6 bg-gradient-to-r from-primary-500/20 to-purple-500/20 rounded-2xl border border-white/20">
-                <h4 className="font-bold mb-2 flex items-center">
-                  <Rocket className="h-5 w-5 mr-2 text-primary-400" />
-                  Next Funding Round
-                </h4>
-                <p className="text-gray-300 text-sm mb-3">
-                  Series B • $25M Target • Q3 2024
-                </p>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-1 bg-white/20 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-primary-400 to-purple-400 h-2 rounded-full" 
-                      style={{ width: '68%' }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-semibold">68%</span>
                 </div>
               </div>
             </div>
