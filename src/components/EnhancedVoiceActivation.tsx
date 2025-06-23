@@ -1,240 +1,226 @@
-import React, { useState, useEffect } from 'react';
-import { Mic, MicOff, Volume2, Settings } from 'lucide-react';
-import { useElevenLabs } from '../hooks/useElevenLabs';
-import { useLanguage } from '../contexts/LanguageContext';
-import TTSPlayer from './TTSPlayer';
-import VoiceSettings from './VoiceSettings';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Mic } from 'lucide-react';
 
-interface EnhancedVoiceActivationProps {
-  onVoiceCommand?: (command: string) => void;
-  className?: string;
-}
+type Message = {
+  id: number;
+  text: string;
+  sender: 'user' | 'ai';
+  timestamp: string;
+};
 
-const EnhancedVoiceActivation: React.FC<EnhancedVoiceActivationProps> = ({
-  onVoiceCommand,
-  className = '',
-}) => {
-  const { t } = useLanguage();
+const getAIResponse = (input: string) => {
+  const businessData = {
+    mrr: '$12,450',
+    users: 847,
+    growth: '+23%',
+    revenue: '$45,200',
+    tasks: 12,
+    meetings: 3
+  };
+
+  const lowerInput = input.toLowerCase();
+
+  if (lowerInput.includes('hi friday') || lowerInput.includes('hello friday') || lowerInput.includes('hey friday')) {
+    return `Hello! I'm Friday, your AI business assistant. Your MRR is currently ${businessData.mrr} with ${businessData.users} active users. How can I help you today?`;
+  }
+  if (lowerInput.includes('revenue') || lowerInput.includes('sales') || lowerInput.includes('money')) {
+    return `Your current revenue metrics: MRR is ${businessData.mrr}, total revenue is ${businessData.revenue}, and you're up ${businessData.growth} from last month. Looking strong!`;
+  }
+  if (lowerInput.includes('users') || lowerInput.includes('customers') || lowerInput.includes('growth')) {
+    return `You have ${businessData.users} active users and growing ${businessData.growth} month-over-month. Your user acquisition is trending positively!`;
+  }
+  if (lowerInput.includes('tasks') || lowerInput.includes('todo') || lowerInput.includes('schedule')) {
+    return `You have ${businessData.tasks} pending tasks and ${businessData.meetings} meetings scheduled today. Would you like me to prioritize them for you?`;
+  }
+  if (lowerInput.includes('help') || lowerInput.includes('what can you do')) {
+    return `I can help you with: checking your business metrics, managing tasks, scheduling meetings, analyzing revenue trends, and providing insights on your business growth. What would you like to explore?`;
+  }
+  if (lowerInput.includes('thank') || lowerInput.includes('thanks')) {
+    return `You're welcome! I'm here whenever you need business insights or assistance. Keep crushing those goals! 🚀`;
+  }
+
+  return `I understand you're asking about "${input}". As your business AI, I can help with metrics, tasks, scheduling, and growth analysis. What specific information would you like?`;
+};
+
+const FridayAIChatInterface = () => {
   const [isListening, setIsListening] = useState(false);
   const [wakeWordDetected, setWakeWordDetected] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
-  const [status, setStatus] = useState(t('voice.sayFriday'));
-  const [showSettings, setShowSettings] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState('pNInz6obpgDQGcFmaJgB');
-  const [voiceSettings, setVoiceSettings] = useState({
-    stability: 0.5,
-    similarity_boost: 0.75,
-    style: 0.0,
-    use_speaker_boost: true,
-  });
-  const [responseText, setResponseText] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputText, setInputText] = useState('');
 
-  const { generateSpeech, isLoading: ttsLoading } = useElevenLabs();
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const recognitionRef = useRef<any>(null);
+  const fallbackAudioRef = useRef<HTMLAudioElement>(null);
 
-  useEffect(() => {
-    // Check microphone permission
-    if (navigator.permissions) {
-      navigator.permissions.query({ name: 'microphone' as PermissionName }).then(
-        (permissionStatus) => {
-          setHasPermission(permissionStatus.state === 'granted');
-          
-          permissionStatus.onchange = () => {
-            setHasPermission(permissionStatus.state === 'granted');
-          };
-        }
-      );
+  const playFallbackAudio = () => {
+    if (fallbackAudioRef.current) {
+      fallbackAudioRef.current.play();
+    }
+  };
+
+  const addMessage = (text: string, sender: 'user' | 'ai') => {
+    const newMessage = {
+      id: Date.now(),
+      text,
+      sender,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => [...prev, newMessage]);
+  };
+
+  const handleVoiceCommand = useCallback((command: string) => {
+    if (command.toLowerCase().includes('friday')) {
+      setWakeWordDetected(true);
+      addMessage(command, 'user');
+      setTimeout(() => {
+        const response = getAIResponse(command);
+        addMessage(response, 'ai');
+        playFallbackAudio();
+        setWakeWordDetected(false);
+      }, 1000);
     }
   }, []);
+
+  const handleTextSubmit = (e: React.FormEvent) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    if (inputText.trim()) {
+      addMessage(inputText, 'user');
+      setTimeout(() => {
+        const response = getAIResponse(inputText);
+        addMessage(response, 'ai');
+        playFallbackAudio();
+      }, 1000);
+      setInputText('');
+    }
+  };
 
   const handleVoiceToggle = async () => {
     if (!hasPermission) {
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
         setHasPermission(true);
-      } catch (err) {
-        setStatus('Microphone access denied');
+      } catch {
         return;
       }
     }
-
-    if (!wakeWordDetected && !isListening) {
-      // Simulate wake word detection
-      setWakeWordDetected(true);
-      setIsListening(true);
-      setStatus(t('voice.fridayActivated'));
-      
-      // Simulate voice command processing
-      setTimeout(() => {
-        const command = 'Hello Friday, how can you help me today?';
-        setIsListening(false);
-        setWakeWordDetected(false);
-        setStatus(t('voice.processing'));
-        
-        // Generate AI response
-        const response = t('console.hello');
-        setResponseText(response);
-        
-        // Generate speech for the response
-        generateSpeech(response, {
-          voice_id: selectedVoice,
-          voice_settings: voiceSettings,
-        });
-        
-        onVoiceCommand?.(command);
-        
-        setTimeout(() => {
-          setStatus(t('voice.sayFriday'));
-        }, 2000);
-      }, 3000);
-    } else if (isListening) {
-      // Stop listening
-      setIsListening(false);
-      setWakeWordDetected(false);
-      setStatus(t('voice.sayFriday'));
+    if (!isListening && recognitionRef.current) {
+      recognitionRef.current.start();
+    } else if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
     }
   };
 
   const getButtonState = () => {
-    if (wakeWordDetected && isListening) {
+    if (isListening) {
       return {
         className: 'bg-gradient-to-br from-green-500 to-green-600 text-white animate-pulse',
         icon: <Mic className="h-6 w-6" />,
-        ringColor: 'focus:ring-green-200 dark:focus:ring-green-800'
+        ringColor: 'focus:ring-green-200'
       };
     } else if (wakeWordDetected) {
       return {
         className: 'bg-gradient-to-br from-blue-500 to-blue-600 text-white',
         icon: <Mic className="h-6 w-6" />,
-        ringColor: 'focus:ring-blue-200 dark:focus:ring-blue-800'
+        ringColor: 'focus:ring-blue-200'
       };
     } else {
       return {
-        className: 'bg-gradient-to-br from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700',
+        className: 'bg-gradient-to-br from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700',
         icon: <Mic className="h-6 w-6" />,
-        ringColor: 'focus:ring-primary-200 dark:focus:ring-primary-800'
+        ringColor: 'focus:ring-purple-200'
       };
     }
   };
 
   const buttonState = getButtonState();
 
+  useEffect(() => {
+    const SpeechRecognitionClass =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognitionClass) {
+      recognitionRef.current = new SpeechRecognitionClass();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onstart = () => setIsListening(true);
+
+      recognitionRef.current.onresult = (event: Event) => {
+        const speechEvent = event as unknown as { results: SpeechRecognitionResultList };
+        const transcript = Array.from(speechEvent.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('');
+        if (speechEvent.results[speechEvent.results.length - 1].isFinal) {
+          handleVoiceCommand(transcript);
+        }
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false);
+        playFallbackAudio();
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+        if (!wakeWordDetected) {
+          playFallbackAudio();
+        }
+      };
+    }
+  }, [wakeWordDetected, handleVoiceCommand]);
+
+  useEffect(() => {
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: 'microphone' }).then(status => {
+        setHasPermission(status.state === 'granted');
+        status.onchange = () => {
+          setHasPermission(status.state === 'granted');
+        };
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Main Voice Activation */}
-      <div className="flex flex-col items-center space-y-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center space-x-4 w-full">
-          {/* Voice Activation Button */}
-          <div className="relative">
-            <button
-              onClick={handleVoiceToggle}
-              disabled={!hasPermission}
-              className={`
-                relative w-16 h-16 rounded-full flex items-center justify-center
-                transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 ${buttonState.ringColor}
-                ${buttonState.className}
-                ${!hasPermission ? 'opacity-50 cursor-not-allowed' : ''}
-              `}
-              aria-label={wakeWordDetected ? 'Friday is listening' : 'Activate Friday'}
-              aria-pressed={wakeWordDetected}
-            >
-              {buttonState.icon}
-              
-              {wakeWordDetected && isListening && (
-                <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-25"></div>
-              )}
-            </button>
-          </div>
-
-          {/* Status and Controls */}
-          <div className="flex-1">
-            <p className={`text-sm font-medium ${
-              wakeWordDetected && isListening 
-                ? 'text-green-600 dark:text-green-400' 
-                : wakeWordDetected 
-                ? 'text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400'
-            }`}>
-              {status}
-            </p>
-            
-            {!hasPermission && (
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                {t('voice.micPermission')}
-              </p>
-            )}
-          </div>
-
-          {/* Settings Button */}
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            title="Voice Settings"
-          >
-            <Settings className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Visual feedback for listening */}
-        {wakeWordDetected && isListening && (
-          <div className="flex space-x-1">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className={`w-2 bg-green-500 rounded-full animate-pulse`}
-                style={{ 
-                  animationDelay: `${i * 0.15}s`,
-                  height: `${Math.random() * 20 + 16}px`
-                }}
-              ></div>
-            ))}
-          </div>
-        )}
-
-        {/* Wake word indicator */}
-        {wakeWordDetected && !isListening && (
-          <div className="text-center">
-            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-              Friday is ready to listen
-            </p>
-          </div>
-        )}
+    <div className="relative p-4">
+      <div className="flex items-center justify-between mb-4">
+        <form onSubmit={handleTextSubmit} className="w-full flex gap-2">
+          <input
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            className="flex-1 border px-3 py-2 rounded-md"
+            placeholder="Type something..."
+          />
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">Send</button>
+        </form>
+        <button
+          onClick={handleVoiceToggle}
+          className={`ml-2 p-3 rounded-full ${buttonState.className} focus:outline-none focus:ring-4 ${buttonState.ringColor}`}
+        >
+          {buttonState.icon}
+        </button>
       </div>
 
-      {/* Voice Settings Panel */}
-      {showSettings && (
-        <VoiceSettings
-          onVoiceChange={setSelectedVoice}
-          onSettingsChange={setVoiceSettings}
-          className="animate-slide-up"
-        />
-      )}
+      <div ref={chatContainerRef} className="max-h-80 overflow-y-auto space-y-2">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`p-2 rounded-md ${msg.sender === 'user' ? 'bg-gray-200' : 'bg-green-100'}`}>
+            <div className="text-xs text-gray-500">{msg.timestamp}</div>
+            <div>{msg.text}</div>
+          </div>
+        ))}
+      </div>
 
-      {/* TTS Response Player */}
-      {responseText && (
-        <div className="animate-slide-up">
-          <TTSPlayer
-            text={responseText}
-            voiceId={selectedVoice}
-            autoPlay={true}
-            onPlayEnd={() => {
-              // Optional: Clear response after playback
-              // setResponseText('');
-            }}
-          />
-        </div>
-      )}
-
-      {/* Loading Indicator */}
-      {ttsLoading && (
-        <div className="flex items-center justify-center space-x-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-          <span className="text-sm text-blue-600 dark:text-blue-400">
-            Generating Friday's response...
-          </span>
-        </div>
-      )}
+      <audio ref={fallbackAudioRef} src="/output.mp3" preload="auto" />
     </div>
   );
 };
 
-export default EnhancedVoiceActivation;
+export default FridayAIChatInterface;
