@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle, TrendingUp, Trash2, Users, Twitter, Facebook, Linkedin, Mail, ExternalLink, DollarSign, Target, Zap, Globe, ArrowUpRight, ArrowDownRight, Award, Rocket, Brain, Shield } from 'lucide-react';
+import { Clock, CheckCircle, TrendingUp, Trash2, Users, Twitter, Facebook, Linkedin, Mail, ExternalLink, DollarSign, Target, Zap, Globe, ArrowUpRight, ArrowDownRight, Award, Brain, Shield, Mic } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useStats } from '../contexts/StatsContext';
@@ -46,7 +46,7 @@ const Dashboard: React.FC = () => {
 
   const keyMetrics = [
     {
-      title: 'Monthly Recurring Revenue',
+      title: 'Monthly Revenue',
       value: `$${investorMetrics.mrr.toLocaleString()}`,
       change: `+${investorMetrics.growth}%`,
       trend: 'up',
@@ -86,7 +86,7 @@ const Dashboard: React.FC = () => {
   const features = [
     {
       icon: Brain,
-      title: 'AI Business Intelligence',
+      title: 'AI Business Ideas',
       description: 'Advanced AI-powered insights driving $2.3M in cost savings for clients',
       stats: `${todayStats.tasksCompleted} insights generated today`,
       metrics: '94% accuracy rate',
@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
       badge: 'ENTERPRISE READY'
     },
     {
-      icon: Zap,
+      icon: Mic,
       title: 'Voice-First Automation',
       description: 'Revolutionary voice interface reducing operational time by 67%',
       stats: `${todayStats.voiceCommands} voice commands today`,
@@ -105,8 +105,8 @@ const Dashboard: React.FC = () => {
       badge: 'PATENTED TECH'
     },
     {
-      icon: Rocket,
-      title: 'Smart Workflow Engine',
+      icon: Zap,
+      title: 'Smart Scheduler ',
       description: 'Autonomous task management increasing productivity by 156%',
       stats: `${todayStats.productivityScore}% efficiency boost`,
       metrics: '2.3x faster execution',

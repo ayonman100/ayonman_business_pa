@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic } from 'lucide-react';
+import { Mic, Trash2 } from 'lucide-react';
 
+// Message type
 type Message = {
   id: number;
   text: string;
@@ -9,6 +10,7 @@ type Message = {
   timestamp: string;
 };
 
+// AI response generator
 const getAIResponse = (input: string) => {
   const businessData = {
     mrr: '$12,450',
@@ -21,28 +23,33 @@ const getAIResponse = (input: string) => {
 
   const lowerInput = input.toLowerCase();
 
-  if (lowerInput.includes('hi friday') || lowerInput.includes('hello friday') || lowerInput.includes('hey friday')) {
-    return `Hello! I'm Friday, your AI business assistant. Your MRR is currently ${businessData.mrr} with ${businessData.users} active users. How can I help you today?`;
+  if (lowerInput.includes('hi') || lowerInput.includes('hello') || lowerInput.includes('hey')) {
+    return `Hi there! I'm Friday, your business assistant. How may I help you today?`;
+  }
+  if (lowerInput.includes('what can you do')) {
+    return `I'm Friday, your AI assistant. I can check your metrics, manage tasks, schedule meetings, and analyze business trends. How would you like to proceed?`;
   }
   if (lowerInput.includes('revenue') || lowerInput.includes('sales') || lowerInput.includes('money')) {
-    return `Your current revenue metrics: MRR is ${businessData.mrr}, total revenue is ${businessData.revenue}, and you're up ${businessData.growth} from last month. Looking strong!`;
+    return `Your current revenue metrics: MRR is ${businessData.mrr}, total revenue is ${businessData.revenue}, and you're up ${businessData.growth} from last month.`;
   }
   if (lowerInput.includes('users') || lowerInput.includes('customers') || lowerInput.includes('growth')) {
-    return `You have ${businessData.users} active users and growing ${businessData.growth} month-over-month. Your user acquisition is trending positively!`;
+    return `You have ${businessData.users} active users and are growing ${businessData.growth} month-over-month. Keep it up!`;
   }
   if (lowerInput.includes('tasks') || lowerInput.includes('todo') || lowerInput.includes('schedule')) {
-    return `You have ${businessData.tasks} pending tasks and ${businessData.meetings} meetings scheduled today. Would you like me to prioritize them for you?`;
+    return `You have ${businessData.tasks} tasks and ${businessData.meetings} meetings today. Would you like me to organize them?`;
   }
-  if (lowerInput.includes('help') || lowerInput.includes('what can you do')) {
-    return `I can help you with: checking your business metrics, managing tasks, scheduling meetings, analyzing revenue trends, and providing insights on your business growth. What would you like to explore?`;
+  if (lowerInput.includes('help')) {
+    return `I can help with business metrics, task management, meeting scheduling, and performance analysis. Just tell me what you need.`;
   }
   if (lowerInput.includes('thank') || lowerInput.includes('thanks')) {
-    return `You're welcome! I'm here whenever you need business insights or assistance. Keep crushing those goals! 🚀`;
+    return `You're welcome! Always here to support your business success.`;
   }
 
-  return `I understand you're asking about "${input}". As your business AI, I can help with metrics, tasks, scheduling, and growth analysis. What specific information would you like?`;
+  const shortInput = input.trim().split(' ').slice(0, 5).join(' ');
+  return `I understand you're asking about "${shortInput}". As your business AI, I can help with metrics, tasks, scheduling, and growth analysis. What specific information would you like?`;
 };
 
+// Main chat interface
 const FridayAIChatInterface = () => {
   const [isListening, setIsListening] = useState(false);
   const [wakeWordDetected, setWakeWordDetected] = useState(false);
@@ -87,13 +94,14 @@ const FridayAIChatInterface = () => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
     if (inputText.trim()) {
       addMessage(inputText, 'user');
-      setTimeout(() => {
-        const response = getAIResponse(inputText);
-        addMessage(response, 'ai');
-        playFallbackAudio();
-      }, 1000);
+      const response = getAIResponse(inputText);
+      setTimeout(() => addMessage(response, 'ai'), 500);
       setInputText('');
     }
+  };
+
+  const handleClearMessages = () => {
+    setMessages([]);
   };
 
   const handleVoiceToggle = async () => {
@@ -174,7 +182,7 @@ const FridayAIChatInterface = () => {
 
   useEffect(() => {
     if (navigator.permissions) {
-      navigator.permissions.query({ name: 'microphone' }).then(status => {
+      navigator.permissions.query({ name: 'microphone' as PermissionName }).then(status => {
         setHasPermission(status.state === 'granted');
         status.onchange = () => {
           setHasPermission(status.state === 'granted');
@@ -196,7 +204,7 @@ const FridayAIChatInterface = () => {
           <input
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            className="flex-1 border px-3 py-2 rounded-md"
+            className="flex-1 border px-3 py-2 rounded-md text-black dark:text-white bg-white dark:bg-gray-800 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Type something..."
           />
           <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">Send</button>
@@ -207,12 +215,18 @@ const FridayAIChatInterface = () => {
         >
           {buttonState.icon}
         </button>
+        <button
+          onClick={handleClearMessages}
+          className="ml-2 p-3 rounded-full bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+        >
+          <Trash2 className="h-5 w-5" />
+        </button>
       </div>
 
       <div ref={chatContainerRef} className="max-h-80 overflow-y-auto space-y-2">
         {messages.map((msg) => (
-          <div key={msg.id} className={`p-2 rounded-md ${msg.sender === 'user' ? 'bg-gray-200' : 'bg-green-100'}`}>
-            <div className="text-xs text-gray-500">{msg.timestamp}</div>
+          <div key={msg.id} className={`p-2 rounded-md ${msg.sender === 'user' ? 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white' : 'bg-green-100 dark:bg-green-800 text-black dark:text-white'}`}>
+            <div className="text-xs text-gray-500 dark:text-gray-300">{msg.timestamp}</div>
             <div>{msg.text}</div>
           </div>
         ))}

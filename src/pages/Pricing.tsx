@@ -1,10 +1,10 @@
 import React from 'react';
-import { Check, X, Zap, Crown, ArrowRight } from 'lucide-react';
+import { Check, X, Zap, Crown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
 
 const Pricing: React.FC = () => {
-  const { user, startTrial } = useAuth();
+  const { user } = useAuth();
 
   const plans = [
     {
@@ -64,7 +64,8 @@ const Pricing: React.FC = () => {
       window.location.href = '/dashboard';
     } else {
       if (!user) {
-        startTrial();
+        // Redirect to login or show a message if user is not authenticated
+        window.location.href = '/login';
         return;
       }
       // Simulate upgrade process
@@ -195,8 +196,8 @@ const Pricing: React.FC = () => {
           <div className="space-y-6">
             {[
               {
-                question: "Can I upgrade or downgrade my plan at any time?",
-                answer: "Yes, you can change your plan at any time. Changes take effect immediately, and you'll be charged or refunded prorated amounts."
+                question: "Can I upgrade my plan at any time?",
+                answer: "Yes, you can upgrade your plan at any time. Changes take effect immediately, and you'll be charged the proper amounts."
               },
               {
                 question: "What happens when my free trial ends?",
